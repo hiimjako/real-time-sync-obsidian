@@ -33,10 +33,10 @@ export class RealTimePlugin {
 		});
 
 		this.events = {
-			create: this.create,
-			delete: this.delete,
-			modify: this.modify,
-			rename: this.rename,
+			create: this.create.bind(this),
+			delete: this.delete.bind(this),
+			modify: this.modify.bind(this),
+			rename: this.rename.bind(this),
 		};
 	}
 
@@ -163,15 +163,14 @@ export class RealTimePlugin {
 			console.error(error);
 		}
 
-		if (this.filePathToId.has(file.path)) {
-			return;
-		}
+		await this.create(file);
+	}
 
-		try {
-			const fileApi = await this.apiClient.createFile(file.path, "");
-			this.filePathToId.set(fileApi.workspace_path, fileApi.id);
-		} catch (error) {
-			console.error(error);
-		}
+	getFilePathToId(): Map<string, number> {
+		return new Map(this.filePathToId);
+	}
+
+	getFileIdToFile(): Map<number, FileWithContent> {
+		return new Map(this.fileIdToFile);
 	}
 }
